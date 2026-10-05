@@ -20,6 +20,19 @@ Geliştirme sunucusu: `npm run dev`
 
 Test fixture’larını yeniden üretmek: `npm run fixtures`
 
+## Tasarım token'ları
+
+Genel Fikir Fabrikası token'ları bu şablona alındı. Ürüne özel override (renk, `--content-max` dışı genişlik) kopyalanmaz.
+
+| Dosya | Rol |
+|-------|-----|
+| `src/tokens.css` | CSS değişkenleri. `src/style.css` bunu en başta `@import "./tokens.css";` ile alır. |
+| `src/tokens.json` | Aynı değerlerin JSON karşılığı. `src/tokens.css` ile senkron tutulur. |
+
+Ana sütun `--content-max: 880px`. Bileşen stillerinde ham hex yok: renk `--color-*`, aralık `--space-*`, tipografi `--text-*` / `--font-*`, radius ve gölge token'ları. Koyu tema varsayılan, açık tema `prefers-color-scheme: light`.
+
+Ürün deposunda gerekirse `tokens.css` yüklendikten sonra ayrı bir override dosyası yalnız gereken değişkenleri ezer. Bu dosyanın kendisi ürün için düzenlenmez.
+
 ## Demo akışı
 
 1. Dosya yükle (`.xlsx` / `.xls` / `.csv`)
@@ -45,7 +58,7 @@ Test fixture’larını yeniden üretmek: `npm run fixtures`
 |-------|------------|
 | `src/config.ts` | Uygulama adı, zorunlu kolonlar, boyut/satır sınırı, `LOCAL_STORAGE_ENABLED`, `PWA_ENABLED` |
 | `src/main.ts` | İş kuralları, dönüşüm, ek UI adımları |
-| `index.html` / `src/style.css` | Marka, metinler, düzen |
+| `index.html` / `src/style.css` | Marka, metinler, düzen. Renk değerini `src/tokens.css` içinde değil, ürün override dosyasında değiştirin |
 | `public/manifest.webmanifest` | PWA adı / ikon |
 | `test/` | Yeni iş kuralları için birim testleri |
 

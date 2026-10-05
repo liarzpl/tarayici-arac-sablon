@@ -1,11 +1,11 @@
 {
   "name": "Excel/CSV Araç Şablonu",
   "short_name": "Excel Araç",
-  "description": "İstemci tarafı Excel/CSV aracı — veri cihazdan çıkmaz.",
+  "description": "İstemci tarafı Excel/CSV aracı. Veri cihazdan çıkmaz.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0f1419",
-  "theme_color": "#1a2332",
+  "background_color": "#0e1116",
+  "theme_color": "#161b22",
   "lang": "tr",
   "icons": [
     {
