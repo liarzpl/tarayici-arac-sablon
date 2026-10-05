@@ -1,7 +1,7 @@
 {
   "name": "tarayici-arac-sablon",
   "version": "1.0.1",
-  "description": "İstemci tarafı Excel/CSV tarayıcı aracı başlangıç şablonu — veri cihazdan çıkmaz",
+  "description": "İstemci tarafı Excel/CSV tarayıcı aracı başlangıç şablonu. Veri cihazdan çıkmaz",
   "private": true,
   "type": "module",
   "license": "MIT",

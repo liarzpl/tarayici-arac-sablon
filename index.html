@@ -8,10 +8,10 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'"
     />
-    <meta name="theme-color" content="#1a2332" />
+    <meta name="theme-color" content="#161b22" />
     <meta
       name="description"
-      content="İstemci tarafı Excel/CSV aracı — veriniz cihazınızdan çıkmaz."
+      content="İstemci tarafı Excel/CSV aracı. Veriniz cihazınızdan çıkmaz."
     />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <title>Excel/CSV Araç Şablonu</title>
@@ -20,16 +20,13 @@
     <main>
       <div id="update-banner" class="update-banner" hidden>
         <span id="update-banner-text">Yeni sürüm hazır.</span>
-        <button type="button" id="btn-refresh" class="primary">Yenile</button>
+        <button type="button" id="btn-refresh">Yenile</button>
       </div>
 
       <header>
         <h1 id="app-title">Excel/CSV Araç Şablonu</h1>
-        <p class="lead">
-          Dosyanız yalnız tarayıcınızda işlenir. Sunucu yok, analytics yok,
-          üçüncü parti istek yok.
-        </p>
-        <p class="muted">
+        <p class="lead">Dosya seç → işle → indir. Veriniz cihazınızdan çıkmaz.</p>
+        <p class="meta-line">
           Zorunlu kolonlar (başlık adına göre):
           <strong id="required-cols"></strong>
           · <span id="xlsx-version" class="badge"></span>
@@ -37,11 +34,12 @@
       </header>
 
       <section class="card" aria-labelledby="upload-heading">
-        <h2 id="upload-heading" class="visually-hidden">Dosya yükle</h2>
+        <h2 id="upload-heading" class="card-title">Dosya yükle</h2>
         <label class="file-label">
           Dosya seç (.xlsx / .xls / .csv)
           <input
             id="file-input"
+            class="visually-hidden"
             type="file"
             accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
           />
@@ -78,8 +76,8 @@
       </section>
 
       <footer class="muted site-footer">
-        MIT Lisans · Şablon — yeni projede <code>src/config.ts</code> ve demo
-        akışını özelleştirin.
+        MIT Lisans. Yeni projede <code>src/config.ts</code> ve demo akışını
+        özelleştirin.
       </footer>
     </main>
     <script type="module" src="/src/main.ts"></script>
