@@ -3,22 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Sıkı CSP: üçüncü parti / analytics / connect yok (connect-src 'self' SW ve aynı origin için) -->
+    <!-- CSP shared/csp.mjs ile hizalı (scripts/sync-csp.mjs + Vite eklentisi) -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; worker-src 'self'"
     />
     <meta name="theme-color" content="#1a2332" />
     <meta
       name="description"
       content="İstemci tarafı Excel/CSV aracı — veriniz cihazınızdan çıkmaz."
     />
-    <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <title>Excel/CSV Araç Şablonu</title>
   </head>
   <body>
     <main>
+      <div id="update-banner" class="update-banner" hidden>
+        <span id="update-banner-text">Yeni sürüm hazır.</span>
+        <button type="button" id="btn-refresh" class="primary">Yenile</button>
+      </div>
+
       <header>
         <h1 id="app-title">Excel/CSV Araç Şablonu</h1>
         <p class="lead">
@@ -33,9 +37,7 @@
       </header>
 
       <section class="card" aria-labelledby="upload-heading">
-        <h2 id="upload-heading" class="visually-hidden" style="position:absolute;left:-9999px">
-          Dosya yükle
-        </h2>
+        <h2 id="upload-heading" class="visually-hidden">Dosya yükle</h2>
         <label class="file-label">
           Dosya seç (.xlsx / .xls / .csv)
           <input
@@ -56,7 +58,7 @@
       </section>
 
       <section class="card" id="preview-wrap" hidden>
-        <h2 style="font-size: 1.1rem; margin-top: 0">Önizleme</h2>
+        <h2 class="card-title">Önizleme</h2>
         <p id="preview-note" class="muted"></p>
         <div class="table-wrap">
           <table>
@@ -67,15 +69,15 @@
       </section>
 
       <section class="card" id="storage-panel" hidden>
-        <h2 style="font-size: 1.1rem; margin-top: 0">Yerel saklama</h2>
+        <h2 class="card-title">Yerel saklama</h2>
       </section>
 
-      <section class="card">
-        <h2 style="font-size: 1.1rem; margin-top: 0">Ana ekrana ekle (PWA)</h2>
+      <section class="card" id="pwa-panel" hidden>
+        <h2 class="card-title">Ana ekrana ekle (PWA)</h2>
         <p id="install-hint" class="muted"></p>
       </section>
 
-      <footer class="muted" style="margin-top: 1.5rem">
+      <footer class="muted site-footer">
         MIT Lisans · Şablon — yeni projede <code>src/config.ts</code> ve demo
         akışını özelleştirin.
       </footer>

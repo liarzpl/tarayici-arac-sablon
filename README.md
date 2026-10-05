@@ -32,18 +32,18 @@ Test fixture’larını yeniden üretmek: `npm run fixtures`
 
 1. **Tamamen istemci / statik site** — sunucu yok, analytics yok, üçüncü parti istek yok. Kullanıcı verisi hiçbir ağ isteğine girmez.
 2. **SheetJS 0.20.3** — npm’deki eski `xlsx@0.18.5` (CVE’li) **kullanılmaz**. Resmi dağıtım: `https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`. Paket **build’e gömülür**; çalışma anında CDN’den script çekilmez.
-3. **Formül enjeksiyonu koruması** — çıktıda `=`, `+`, `-`, `@`, TAB, CR ile başlayan metin hücrelerinin başına `'` eklenir. Saf `number` hücreler sayı kalır.
+3. **Formül enjeksiyonu koruması** — baştaki boşluk/NBSP/Unicode boşluk atlanır; `= + - @ |` ve fullwidth `＝＋－＠` ile başlayan metinlerin başına `'` eklenir. Saf `number` hücreler (ör. `-12.5`) sayı kalır. **Metin** `"-5"` ise başına `'` eklenir.
 4. **Boyut / satır sınırı** — varsayılan 10 MB ve 50.000 satır (`src/config.ts`). Aşımda anlaşılır Türkçe hata. Bozuk/boş/yanlış uzantıda çökmez.
 5. **Kolon eşleme** — sıra değil başlık adı; Türkçe İ/ı, Ş/ş, boşluk, büyük-küçük harf normalizasyonu.
-6. **Sıkı CSP** — `index.html` meta + `public/_headers` (Netlify) + `vercel.json` + `netlify.toml`. `default-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`.
-7. **Yerel saklama varsayılan KAPALI** — IndexedDB, `navigator.storage.persist()`, yedek hatırlatması, sil / dışa aktar. `localStorage`’a hassas veri yazılmaz. PWA manifest + yalnız statik önbellekleyen service worker.
+6. **Sıkı CSP** — tek kaynak `shared/csp.mjs` (`style-src 'self'`, `font-src 'self'`, `worker-src 'self'`; `unsafe-inline` yok). `scripts/sync-csp.mjs` ile index.html / `_headers` / `netlify.toml` / `vercel.json` / Vite header hizalanır; `test/csp-align.test.ts` doğrular.
+7. **Yerel saklama ve PWA varsayılan KAPALI** (`LOCAL_STORAGE_ENABLED`, `PWA_ENABLED`). IndexedDB / persist / yedek hatırlatması; `localStorage`’a hassas veri yok. PWA açılınca sürümlü SW cache (`tarayici-arac-v{version}`), eski cache silme, «Yenile» ipucu.
 8. **Loglar** — konsola kullanıcı verisi yazılmaz (`src/lib/logger.ts`).
 
 ## Yeni projede ne değiştirilir?
 
 | Dosya | Ne yapılır |
 |-------|------------|
-| `src/config.ts` | Uygulama adı, zorunlu kolonlar, boyut/satır sınırı, `LOCAL_STORAGE_ENABLED` |
+| `src/config.ts` | Uygulama adı, zorunlu kolonlar, boyut/satır sınırı, `LOCAL_STORAGE_ENABLED`, `PWA_ENABLED` |
 | `src/main.ts` | İş kuralları, dönüşüm, ek UI adımları |
 | `index.html` / `src/style.css` | Marka, metinler, düzen |
 | `public/manifest.webmanifest` | PWA adı / ikon |
@@ -53,7 +53,7 @@ Dokunulmaması gerekenler (güvenlik kilidi): formül kaçırma, SheetJS kaynağ
 
 ## Teknoloji
 
-- Vite 5 + TypeScript (React yok)
+- Vite 6 + TypeScript (React yok)
 - Vitest
 - SheetJS Community Edition **0.20.3** (vendor)
 

@@ -18,6 +18,12 @@ export const REQUIRED_COLUMNS = ['Ürün Adı', 'Adet', 'Fiyat'] as const;
  */
 export const LOCAL_STORAGE_ENABLED = false;
 
+/**
+ * PWA (manifest + service worker) varsayılan KAPALI.
+ * Yerel saklama ile birlikte config'te yönetilir; açmak için true.
+ */
+export const PWA_ENABLED = false;
+
 /** Yedek hatırlatması: son Excel yedeğinden bu kadar gün geçince uyarı. */
 export const BACKUP_REMIND_DAYS = 7;
 
@@ -26,3 +32,7 @@ export const APP_NAME = 'Excel/CSV Araç Şablonu';
 
 /** Uygulama kısa adı (PWA). */
 export const APP_SHORT_NAME = 'Excel Araç';
+
+/** package.json sürümü (Vite define). */
+export const APP_VERSION =
+  typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0';

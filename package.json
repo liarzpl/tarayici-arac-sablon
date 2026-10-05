@@ -1,7 +1,7 @@
 {
   "name": "tarayici-arac-sablon",
-  "version": "1.0.0",
-  "description": "\u0130stemci taraf\u0131 Excel/CSV taray\u0131c\u0131 arac\u0131 ba\u015flang\u0131\u00e7 \u015fablonu \u2014 veri cihazdan \u00e7\u0131kmaz",
+  "version": "1.0.1",
+  "description": "İstemci tarafı Excel/CSV tarayıcı aracı başlangıç şablonu — veri cihazdan çıkmaz",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -12,7 +12,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "fixtures": "tsx scripts/generate-fixtures.ts",
-    "audit:check": "npm audit --audit-level=high"
+    "audit:check": "npm audit --audit-level=high",
+    "sync:csp": "node scripts/sync-csp.mjs",
+    "generate:sw": "node scripts/generate-sw.mjs",
+    "prebuild": "node scripts/sync-csp.mjs && node scripts/generate-sw.mjs",
+    "pretest": "node scripts/sync-csp.mjs"
   },
   "dependencies": {
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"

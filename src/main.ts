@@ -5,7 +5,12 @@
  */
 
 import './style.css';
-import { APP_NAME, REQUIRED_COLUMNS } from './config';
+import {
+  APP_NAME,
+  APP_VERSION,
+  PWA_ENABLED,
+  REQUIRED_COLUMNS,
+} from './config';
 import {
   formatMissingColumnsError,
   matchColumns,
@@ -29,6 +34,7 @@ interface DemoState {
 }
 
 let state: DemoState | null = null;
+let waitingWorker: ServiceWorker | null = null;
 
 function $(id: string): HTMLElement {
   const el = document.getElementById(id);
@@ -147,19 +153,76 @@ function onDownload(bookType: 'xlsx' | 'csv'): void {
   setStatus(`«${name}» indirildi (formül kaçırması uygulandı).`, 'ok');
 }
 
-function registerServiceWorker(): void {
-  if (!('serviceWorker' in navigator)) return;
-  // public/sw.js → dist/sw.js; yalnız aynı origin statik dosyalar
-  void navigator.serviceWorker.register('./sw.js').then(
-    () => logger.info('Service worker kayıtlı'),
-    () => logger.warn('Service worker kaydı başarısız'),
-  );
+function showUpdateBanner(): void {
+  const banner = $('update-banner');
+  $('update-banner-text').textContent =
+    'Yeni sürüm hazır. Güncellemek için Yenile’ye basın.';
+  banner.hidden = false;
 }
 
-function showInstallHint(): void {
-  const el = $('install-hint');
-  el.textContent =
-    'Ana ekrana ekleme: Chrome/Edge menü → «Uygulamayı yükle» veya «Ana ekrana ekle». Safari (iOS): Paylaş → Ana Ekrana Ekle. Veri sunucuya gitmez.';
+function hideUpdateBanner(): void {
+  $('update-banner').hidden = true;
+}
+
+function registerServiceWorker(): void {
+  if (!PWA_ENABLED) return;
+  if (!('serviceWorker' in navigator)) return;
+
+  void navigator.serviceWorker
+    .register('./sw.js')
+    .then((reg) => {
+      logger.info('Service worker kayıtlı');
+
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        waitingWorker = reg.waiting;
+        showUpdateBanner();
+      }
+
+      reg.addEventListener('updatefound', () => {
+        const installing = reg.installing;
+        if (!installing) return;
+        installing.addEventListener('statechange', () => {
+          if (
+            installing.state === 'installed' &&
+            navigator.serviceWorker.controller
+          ) {
+            waitingWorker = installing;
+            showUpdateBanner();
+          }
+        });
+      });
+    })
+    .catch(() => logger.warn('Service worker kaydı başarısız'));
+
+  $('btn-refresh').addEventListener('click', () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    }
+    hideUpdateBanner();
+    window.location.reload();
+  });
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // Yeni SW devraldı — bir kez yenile
+  });
+}
+
+function setupPwaUi(): void {
+  const panel = $('pwa-panel');
+  if (!PWA_ENABLED) {
+    panel.hidden = true;
+    // Manifest linkini yalnızca PWA açıkken ekle
+    return;
+  }
+
+  panel.hidden = false;
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = './manifest.webmanifest';
+  document.head.appendChild(link);
+
+  $('install-hint').textContent =
+    `Ana ekrana ekleme: Chrome/Edge menü → «Uygulamayı yükle» veya «Ana ekrana ekle». Safari (iOS): Paylaş → Ana Ekrana Ekle. Veri sunucuya gitmez. Sürüm ${APP_VERSION}.`;
 }
 
 function init(): void {
@@ -168,7 +231,7 @@ function init(): void {
   $('required-cols').textContent = REQUIRED_COLUMNS.join(', ');
 
   const versionEl = $('xlsx-version');
-  versionEl.textContent = `SheetJS (xlsx) ${getXlsxVersion()}`;
+  versionEl.textContent = `SheetJS (xlsx) ${getXlsxVersion()} · v${APP_VERSION}`;
 
   const input = $('file-input') as HTMLInputElement;
   input.addEventListener('change', () => {
@@ -194,9 +257,10 @@ function init(): void {
     storagePanel.hidden = true;
   }
 
-  showInstallHint();
+  setupPwaUi();
   registerServiceWorker();
   clearPreview();
+  hideUpdateBanner();
   setStatus('Bir Excel veya CSV dosyası seçin.', 'info');
   logger.info('Uygulama hazır');
 }

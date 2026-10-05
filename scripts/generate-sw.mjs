@@ -1,6 +1,20 @@
-/* Service worker — yalnız statik dosyalar; veri göndermez. Otomatik üretildi. */
-/* CACHE_VERSION: 1.0.1 */
-const CACHE = "tarayici-arac-v1.0.1";
+#!/usr/bin/env node
+/**
+ * package.json version ile SW üretir (public/sw.js + dist/sw.js).
+ * Cache adı: tarayici-arac-v{version}
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+const version = pkg.version;
+const CACHE = `tarayici-arac-v${version}`;
+
+const sw = `/* Service worker — yalnız statik dosyalar; veri göndermez. Otomatik üretildi. */
+/* CACHE_VERSION: ${version} */
+const CACHE = ${JSON.stringify(CACHE)};
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -49,3 +63,11 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+`;
+
+fs.writeFileSync(path.join(root, 'public', 'sw.js'), sw, 'utf8');
+const distDir = path.join(root, 'dist');
+if (fs.existsSync(distDir)) {
+  fs.writeFileSync(path.join(distDir, 'sw.js'), sw, 'utf8');
+}
+console.info('SW üretildi:', CACHE);

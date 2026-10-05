@@ -1,29 +1,62 @@
-import { defineConfig } from 'vite';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { defineConfig, type Plugin } from 'vite';
+import { CSP_POLICY } from './shared/csp.mjs';
+
+const root = path.dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(
+  fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
+) as { version: string };
+
+function generateSwPlugin(): Plugin {
+  return {
+    name: 'generate-sw',
+    closeBundle() {
+      spawnSync(process.execPath, [path.join(root, 'scripts/generate-sw.mjs')], {
+        stdio: 'inherit',
+      });
+    },
+  };
+}
+
+function injectCspPlugin(): Plugin {
+  return {
+    name: 'inject-csp-meta',
+    transformIndexHtml(html) {
+      return html.replace(
+        /(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")/i,
+        `$1${CSP_POLICY}$3`,
+      );
+    },
+  };
+}
 
 export default defineConfig({
   base: './',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   build: {
     target: 'es2022',
     outDir: 'dist',
     sourcemap: false,
-    // SheetJS'i bundle'a göm; çalışma anında CDN yok
     rollupOptions: {
       output: {
         manualChunks: undefined,
       },
     },
   },
-  // Geliştirmede bile harici istek yok
   server: {
     headers: {
-      'Content-Security-Policy':
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+      'Content-Security-Policy': CSP_POLICY,
     },
   },
   preview: {
     headers: {
-      'Content-Security-Policy':
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+      'Content-Security-Policy': CSP_POLICY,
     },
   },
+  plugins: [injectCspPlugin(), generateSwPlugin()],
 });
